@@ -1,0 +1,150 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculador de Impuestos</title>
+</head>
+<body>
+    <header>
+        <h1>GENERADOR DE DETALLES DE FACTURACIÓN</h1>
+        <h2>Herramienta para generar detalles de facturas de forma sencilla</h2>
+    </header>
+    <main>
+        <form id="formularioCalculo">
+            <fieldset>
+              <legend>Calculador de impuestos:</legend>
+              <label for="fname">Total:</label>
+              <input type="number" step="0.01" id="total" name="total" >
+              <label for="lname">Porcentaje Impuesto:</label>
+              <input type="number" step="0.01" id="pimpuesto" name="pimpuesto" >
+              <label for="lname">Subtotal:</label>
+              <input type="number" step="0.01" id="subtotal" name="subtotal" disabled>
+              <label for="lname">Impuesto:</label>
+              <input type="number" step="0.01" id="impuesto" name="impuesto" disabled>
+              <input type="submit" value="CALCULAR">
+            </fieldset>
+        </form>
+        <form id="formularioTabla">
+            <fieldset>
+                <legend>Tabla detalles:</legend>
+                <table id="tablaDetalles">
+                    <caption>El campo porcentaje permite defirir que tanto de el valor total representa cada item</caption>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Porcentaje</th>
+                            <th>Cantidad</th>
+                            <th>Precio</th>
+                            <th>Impuesto</th>
+                            <th>Subtotal</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td>
+                                <input type="text" id="item1" name="item1" >
+                            </td>
+                            <td>
+                                <input type="number" step="0.01" id="porcentaje1" name="porcentaje1" >
+                            </td>
+                            <td>
+                                <input type="number" step="0.01" id="cantidad1" name="cantidad1" >
+                            </td>
+                            <td>
+                                <input type="number" step="0.01" id="precio1" name="precio1" disabled>
+                            </td>
+                            <td>
+                                <input type="number" step="0.01" id="impuesto1" name="impuesto1" disabled>
+                            </td>
+                            <td>
+                                <input type="number" step="0.01" id="subtotal1" name="subtotal1" disabled>
+                            </td>
+                            <td>
+                                <button>AGREGAR</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="6">Subtotal</td>
+                            <td id="tdSubtotal"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="6">Impuesto</td>
+                            <td id="tdImpuesto"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="6">Total</td>
+                            <td id="tdTotal"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="7">
+                                <input type="submit" value="CALCULAR" id="btnCalcular">
+                            </td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </fieldset>
+        </form>    
+    </main>
+    <footer>
+        <p><small>&copy; Copyright 2021, <a href="https://github.com/alkhioz">Alejandro Mendoza</a></small></p>
+    </footer>
+    <script>
+        formularioCalculo.onsubmit = (e) => {
+            e.preventDefault();
+            let total = document.getElementById('total').value;
+            let pimpuesto = document.getElementById('pimpuesto').value;
+            let subtotal = document.getElementById('subtotal');
+            let impuesto = document.getElementById('impuesto');
+            let tdSubtotal = document.getElementById('tdSubtotal');
+            let tdImpuesto = document.getElementById('tdImpuesto');
+            let tdTotal = document.getElementById('tdTotal');
+            total === "" && alert("debe proporcionar un valor total");
+            pimpuesto === "" && alert("debe proporcionar un porcentaje de impuesto");
+            if (total !== "" && pimpuesto !== "") {
+                let calculoSubtotal = total/((pimpuesto/100)+1);
+                let calculoImpuesto = total - calculoSubtotal;
+                subtotal.value = parseFloat(calculoSubtotal).toFixed(2);
+                impuesto.value = parseFloat(calculoImpuesto).toFixed(2);
+                tdTotal.innerHTML = total;
+                tdSubtotal.innerHTML = parseFloat(calculoSubtotal).toFixed(2);
+                tdImpuesto.innerHTML = parseFloat(calculoImpuesto).toFixed(2);
+            }
+        }
+        formularioTabla.onsubmit = (e) => {
+            e.preventDefault();
+            let tableBody = document.getElementById("tableBody");
+            let total = document.getElementById('total').value;
+            let pimpuesto = document.getElementById('pimpuesto').value;
+            let totalTabla = 0; 
+            for (let i = 0, row; row = tableBody.rows[i]; i++) {
+                let item = row.cells[0].querySelectorAll("input[type=text]")[0].value;
+                let porcentaje = row.cells[1].querySelectorAll("input[type=number]")[0].value;
+                let cantidad = row.cells[2].querySelectorAll("input[type=number]")[0].value;
+                let precio = row.cells[3].querySelectorAll("input[type=number]")[0];
+                let impuesto = row.cells[4].querySelectorAll("input[type=number]")[0];
+                let subtotal = row.cells[5].querySelectorAll("input[type=number]")[0];
+                item === "" && alert("debe proporcionar un item");
+                porcentaje === "" && alert("debe proporcionar un porcentaje para el item " + item);
+                cantidad === "" && alert("debe proporcionar una cantidad para el item " + item);
+                if (porcentaje !== "" && cantidad !== "") {
+                    let totalLocal = (total * (porcentaje/100)) *cantidad;
+                    let calculoPrecio = totalLocal/((pimpuesto/100)+1);
+                    let calculoImpuesto = totalLocal - calculoPrecio;
+                    let calculoSubtotal = calculoPrecio + calculoImpuesto;
+                    precio.value = parseFloat(calculoPrecio).toFixed(2);
+                    impuesto.value = parseFloat(calculoImpuesto).toFixed(2);
+                    subtotal.value = parseFloat(calculoSubtotal).toFixed(2);
+                    totalTabla  += calculoSubtotal;
+                }
+            }
+            parseFloat(totalTabla) > parseFloat(total) && alert("el total de la tabla no puede ser mayor al total proporcionado");
+        }
+    </script>
+</body>
+</html>
